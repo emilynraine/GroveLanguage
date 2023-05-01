@@ -49,8 +49,18 @@ class Number(Expression):
         return Number(int(tokens[0]))
 
 class StringLiteral(Expression):
-    # TODO: Implement node for String literals
-    pass
+    def __init__(self, string: str):
+        self.string = string # Sets the string value
+    def eval(self) -> int:
+        return self.string # Return the string that is present
+    def __eq__(self, other: Any) -> bool: # Reference Equality
+        return (isinstance(other, StringLiteral) and other.string == self.string)
+    @staticmethod
+    def parse(tokens: list[str]) -> StringLiteral:
+        """Factory method for creating string expressions from tokens"""
+        if len(tokens) != 1:
+            raise GroveParseError("Wrong number of tokens for string")
+        return StringLiteral(tokens[0])
 
 class Object(Expression):
 	# TODO: Implement node for "new" expression
