@@ -1,4 +1,3 @@
-from grove_parse import *
 from grove_lang import *
 
 if __name__ == "__main__":

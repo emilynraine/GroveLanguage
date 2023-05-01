@@ -60,6 +60,7 @@ class StringLiteral(Expression):
         """Factory method for creating string expressions from tokens"""
         if len(tokens) != 1:
             raise GroveParseError("Wrong number of tokens for string")
+        
         return StringLiteral(tokens[0])
 
 class Object(Expression):
@@ -67,15 +68,47 @@ class Object(Expression):
     pass
     
 class Call(Expression):
+    def __init__(self, ref, method, *args):
+        self.ref = ref
+        self.method = method
+        self.args = args
+    
+    def eval(self) -> Any:
+        try:
+            return getattr(context[self.ref], self.method)(*self.args)
+        except Exception as e:
+            className = str(type(context[self.ref])).split("'")[1]
+            raise GroveEvalError(f"Incorrect number of parameters for {className}.{self.method}(), ({len(self.args)} given)")
+
     # TODO: Implement node for "call" expression
-    pass
+    @staticmethod
+    def parse(tokens: list[str]) -> Call:
+        """Factory method for creating call expressions from tokens"""
+        if len(tokens) < 6: # check for correct number of tokens
+            raise GroveParseError(f"Wrong number of tokens ({len(tokens)}) for Call")
+        if tokens[0] != "call": # make sure we start with call keyword
+            raise GroveParseError(f"Expected 'call' but found {tokens[0]}")
+        if tokens[1] != "(": # make sure expression after call starts and ends with parentheses
+            raise GroveParseError(f"Expected '(' but found {tokens[1]}")
+        if tokens[-1] != ")":
+            raise GroveParseError(f"Expected ')' but found {tokens[-1]}")
+        if tokens[2] not in context.keys(): # make sure the object being called on is defined already
+            raise GroveParseError(f"Object '{tokens[2]}' not defined in context")
+        if tokens[3] not in dir(context[tokens[2]]): # make sure the object has the attribute trying to be called
+            raise GroveParseError(f"'{tokens[3]}' not defined for objects of type {type(context[tokens[2]])}")
+        if not callable(getattr(context[tokens[2]], tokens[3])): # makes sure the attribute is callable
+            raise GroveParseError(f"Attribute '{tokens[3]}' is not callable for objects of type {type(context[tokens[2]])}")
+        ref = tokens[2]
+        method = tokens[3]
+        args = (arg for arg in tokens[4:-2])
+        return Call(ref, method, *args)
         
 class Addition(Expression):
     def __init__(self, first: Expression, second: Expression):
         self.first = first
         self.second = second
     def eval(self) -> int: # Add the integer values together
-        return self.first.eval() + self.second.eval()
+        self.first.eval() + self.second.eval()
     def __eq__(self, other) -> bool:
         return (isinstance(other, Addition) and
                 self.first == other.first and self.second == other.second)
