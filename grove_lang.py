@@ -64,8 +64,28 @@ class StringLiteral(Expression):
         return StringLiteral(tokens[0])
 
 class Object(Expression):
-	# TODO: Implement node for "new" expression
-    pass
+    def __init__(self, targetObject: object):
+        self.object = targetObject
+    def eval(self) -> object:
+        return self.object; 
+    def __eq__(self, o) -> bool:
+        return self.object.__eq__(o) 
+    @staticmethod
+    def parse(tokens: list[str]) -> Object:
+        """Factory method for creating object expression from tokens"""
+        s = ' '.join(tokens)
+        
+        if len(tokens) != 1:
+            raise GroveParseError(f"Wrong amount of tokens for parsing object: '{s}'")
+        for string in globals(): #https://stackoverflow.com/questions/1176136/convert-string-to-python-class-object
+            if type(getattr(sys.modules[__name__], string)) == object:
+                return Object(getattr(sys.modules[__name__], string))
+            # if is an object that can be called, then create object
+                # Object(Object())
+            # if callable(getattr(element, function)
+        # builtins.__dict__
+        # gloabls()
+        raise GroveParseError(f"Couldn't find the object '{s}' in modules")
     
 class Call(Expression):
     def __init__(self, ref, method, *args):
