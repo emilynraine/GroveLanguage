@@ -75,11 +75,13 @@ class Object(Expression):
         """Factory method for creating object expression from tokens"""
         s = ' '.join(tokens)
         
-        if len(tokens) != 1:
+        if len(tokens) != 2:
             raise GroveParseError(f"Wrong amount of tokens for parsing object: '{s}'")
-        for string in globals(): #https://stackoverflow.com/questions/1176136/convert-string-to-python-class-object
-            if type(getattr(sys.modules[__name__], string)) == object:
-                return Object(getattr(sys.modules[__name__], string))
+        if tokens[0] != "new":
+            raise GroveParseError(f"Did not find 'new' instead found {tokens[0]}")
+        # for string in globals(): #https://stackoverflow.com/questions/1176136/convert-string-to-python-class-object
+        if type(getattr(sys.modules[__name__], tokens[1])) == object:
+            return Object(getattr(sys.modules[__name__], string))
             # if is an object that can be called, then create object
                 # Object(Object())
             # if callable(getattr(element, function)
