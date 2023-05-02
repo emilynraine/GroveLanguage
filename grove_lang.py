@@ -231,7 +231,7 @@ class Terminate(Expression):
     def parse(tokens: list[str]):
         # make sure there is only 1 token
         if len(tokens) > 1:
-            raise GroveParseError("Statement is too long for Assignment")
+            raise GroveParseError("Statement is too long for Terminate")
          # Make sure token is either 'exit' or 'quit'
         if tokens[0] != 'quit' and tokens[0] != 'exit':
             raise GroveParseError("Terminate statement must be either 'quit' or 'exit'")
