@@ -220,11 +220,30 @@ class Assignment(Statement):
         return Assignment(name, value)
 
 class Import(Expression):
-    # TODO: Implement node for "import" statements
-    pass
+    # Implement node for "import" statements
+    def __init__(self, mod: Expression):
+        self.mod = mod
+    def eval(self):
+        #theoretically this should be adding the module to the globals dictionary
+        self.mod.__name__ = importlib.import_module(self.mod)
+    @staticmethod 
+    def parse(tokens: list[str]):
+        if len(tokens == 2):
+            raise GroveParseError("Statement is too long for Import")
+        #check if first word is import
+        if tokens[0] != "import":
+            raise GroveParseError("First token did not equal 'import'")
+        try:
+            mod:Expression = tokens[1]
+        except:
+            raise GroveParseError("No value found for module in import statement")
+        return Import(mod)
+
 
 class Terminate(Expression):
 	# Implement node for "quit" and "exit" statements
+    def __init__(self, term:Expression) -> None:
+        self.term = term
     def eval(self) -> None: 
         sys.exit()
     @staticmethod
@@ -235,4 +254,8 @@ class Terminate(Expression):
          # Make sure token is either 'exit' or 'quit'
         if tokens[0] != 'quit' and tokens[0] != 'exit':
             raise GroveParseError("Terminate statement must be either 'quit' or 'exit'")
-        return Terminate(tokens[0])
+        try:
+            term:Expression = tokens[0]
+        except:
+            raise GroveParseError("No values found in terminate statement")
+        return Terminate(term)
