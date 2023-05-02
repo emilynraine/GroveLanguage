@@ -223,4 +223,18 @@ class Import(Expression):
 
 class Terminate(Expression):
 	# TODO: Implement node for "quit" and "exit" statements
-	pass
+    # The "quit" and "exit" keywords should each exit your interpreter when "evaluated."
+    #  You can use Python's sys.exit() to do so.
+    def __init__(self, value: Expression):
+            self.value = value
+    def eval(self) -> None: # Assignment the expression in context dic to the right name
+        sys.exit()
+    @staticmethod
+    def parse(tokens: list[str]):
+        #make sure there is only 1 token
+        if len(tokens) > 1:
+            raise GroveParseError("Statement is too long for Assignment")
+         # 1 Make sure token is either 'exit' or 'quit'
+        if tokens[0] != 'quit' and tokens[0] != 'exit':
+            raise GroveParseError("Terminate statement must be either 'quit' or 'exit'")
+        return Terminate(tokens[0])
