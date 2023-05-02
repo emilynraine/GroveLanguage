@@ -223,8 +223,6 @@ class Import(Expression):
 
 class Terminate(Expression):
 	# Implement node for "quit" and "exit" statements
-    def __init__(self, value: Expression):
-            self.value = value
     def eval(self) -> None: 
         sys.exit()
     @staticmethod
