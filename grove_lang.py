@@ -7,6 +7,9 @@ import builtins
 from abc import ABCMeta, abstractmethod
 from typing import Any, Union
 
+# add a "verbose" flag to print all parse exceptions while debugging
+verbose = False
+
 # The exception classes from the notes.
 class GroveError(Exception): pass
 class GroveParseError(GroveError): pass
@@ -16,15 +19,94 @@ context: dict[str,object] = {}
 
 # Command Base Class (superclass of expressions and statements)
 class Command(object):
-    pass
+    @abstractmethod
+    def __init__(self): pass
+    @abstractmethod
+    def eval(self) -> Union[int,None]: pass
+    @staticmethod
+    def parse(s: str) -> Command:
+        """Factory method for creating Command subclasses from lines of code"""
+        tokens: list[str] = s.strip().split()
+        try:
+            # first try to pase this command as a statement
+            return Statement.parse(tokens)
+        except GroveParseError as e:
+            if verbose: print(e)
+        
+        try:
+            # if it is not a statement it must be an expression
+            return Expression.parse(tokens)
+        except GroveParseError as e:
+            if verbose: print(e)
+            
+        raise GroveParseError(f"Unrecognized Command: {s}")
 
 # Expression Base Class (superclass of Num, Name, StringLiteral, etc.)
 class Expression(Command):
-    pass
+    @abstractmethod
+    def __init__(self): pass
+    @abstractmethod
+    def eval(self) -> int: pass
+    @classmethod
+    def parse(cls, tokens: list[str]) -> Expression:
+        """Factory method for creating Expression subclasses from tokens"""
+        subclasses: list[type[Expression]] = cls.__subclasses__()
+        for subclass in subclasses:
+            try:
+                return subclass.parse(tokens)
+            except GroveParseError as e:
+                if verbose: print(e)
+        raise GroveParseError(f"Unrecognized Expression: {' '.join(tokens)}")
+    @staticmethod
+    def match_parens(tokens: list[str]) -> int:
+        """Searches tokens beginning with ( and returns index of matching )"""
+        # ensure tokens is such that a matching ) might exist
+        if len(tokens) < 2: raise GroveParseError("Expression too short")
+        if tokens[0] != '(': raise GroveParseError("No opening ( found")
+        # track the depth of nested ()
+        depth: int = 0
+        for i,token in enumerate(tokens):
+            # when a ( is found, increase the depth
+            if token == '(': depth += 1
+            # when a ) is found, decrease the depth
+            elif token == ')': depth -= 1
+            # if after a token the depth reaches 0, return that index
+            if depth == 0: return i
+        # if the depth never again reached 0 then parens do not match
+        raise GroveParseError("No closing ) found")
 
 # Statement Base Class (superclass of Assign, Terminate, and Import)
 class Statement(Command):
-    pass
+    @abstractmethod
+    def __init__(self): pass
+    @abstractmethod
+    def eval(self) -> None: pass
+    @staticmethod
+    def parse(tokens: list[str]) -> Statement:
+        """Factory method for creating Statement subclasses from tokens"""
+        # Only valid statement is Assignment, Terminate, or Import
+        try:
+            # try to parse as assignment
+            return Assignment.parse(tokens)
+        except GroveParseError as e:
+            if verbose: print(e)
+            print("NOT ASSIGNMENT")
+            
+        try:
+            # try to parse as terminate
+            return Terminate.parse(tokens)
+        except GroveParseError as e:
+            if verbose: print(e)
+            print("NOT TERMINATE")
+            
+        try:
+            # try to parse as import
+            return Import.parse(tokens)
+        except GroveParseError as e:
+            if verbose: print(e)
+            print("NOT IMPORT")
+                
+        raise GroveParseError(f"Unrecognized Command on tokens: {tokens}")
 
 # -----------------------------------------------------------------------------
 # Implement each of the following parse tree nodes for the Grove language
@@ -94,7 +176,6 @@ class Call(Expression):
         self.ref = ref
         self.method = method
         self.args = args
-    
     def eval(self) -> Any:
         try:
             return getattr(context[self.ref], self.method)(*self.args)
@@ -102,7 +183,6 @@ class Call(Expression):
             className = str(type(context[self.ref])).split("'")[1]
             raise GroveEvalError(f"Incorrect number of parameters for {className}.{self.method}(), ({len(self.args)} given)")
 
-    # TODO: Implement node for "call" expression
     @staticmethod
     def parse(tokens: list[str]) -> Call:
         """Factory method for creating call expressions from tokens"""
@@ -180,7 +260,9 @@ class Name(Expression):
             raise GroveParseError("Wrong number of tokens for Name")
         if not tokens[0][0].isalpha():
             raise GroveParseError("Name must start with alpha")
-        if [i.isalpha() or i == "_" for i in tokens[0]].count(False) == 0:
+        if not tokens[0].replace("_", "").isalnum():
+            print(tokens[0].replace("_", ""))
+            print("HERE")
             raise GroveParseError("Names can contain letters")
         return Name(tokens[0])
 
@@ -206,6 +288,7 @@ class Assignment(Statement):
         try:
             name: Name = Name.parse([tokens[1]])
         except GroveParseError as e:
+            print("NO NAME")
             raise GroveParseError("No name found for Assignment statement")
         # 3 Make sure the next token is an '='
         if tokens[2] != '=':
