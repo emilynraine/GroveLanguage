@@ -90,21 +90,18 @@ class Statement(Command):
             return Assignment.parse(tokens)
         except GroveParseError as e:
             if verbose: print(e)
-            print("NOT ASSIGNMENT")
             
         try:
             # try to parse as terminate
             return Terminate.parse(tokens)
         except GroveParseError as e:
             if verbose: print(e)
-            print("NOT TERMINATE")
             
         try:
             # try to parse as import
             return Import.parse(tokens)
         except GroveParseError as e:
             if verbose: print(e)
-            print("NOT IMPORT")
                 
         raise GroveParseError(f"Unrecognized Command on tokens: {tokens}")
 
@@ -142,6 +139,8 @@ class StringLiteral(Expression):
         """Factory method for creating string expressions from tokens"""
         if len(tokens) != 1:
             raise GroveParseError("Wrong number of tokens for string")
+        if tokens[0][0] != '"' or tokens[0][len(tokens) - 1] != '"':
+            raise GroveParseError("Needs quotes on the sides")
         
         return StringLiteral(tokens[0])
 
@@ -311,7 +310,7 @@ class Import(Expression):
         self.mod.__name__ = importlib.import_module(self.mod)
     @staticmethod 
     def parse(tokens: list[str]):
-        if len(tokens == 2):
+        if len(tokens) == 2:
             raise GroveParseError("Statement is too long for Import")
         #check if first word is import
         if tokens[0] != "import":

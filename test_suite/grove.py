@@ -9,11 +9,11 @@ def main():
     print("Enter your commands or 'exit' or 'quit' to exit")
     # loop until the command :done is found
     while True:
-        s: str = input('> ')
+        s: str = input('Grove>> ')
         if (s.strip() == 'exit') or (s.strip() == 'quit'): break
         try:
-            x = Command.parse(s).eval()
-            if x is not None: print(x)
+            cmd = Command.parse(s).eval()
+            if cmd is not None: print(cmd)
         except GroveParseError as e:
             print(f"Error Parsing {s}")
             print(e)
