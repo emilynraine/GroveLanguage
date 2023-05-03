@@ -142,7 +142,7 @@ class StringLiteral(Expression):
         if tokens[0][0] != '"' or tokens[0][len(tokens) - 1] != '"':
             raise GroveParseError("Needs quotes on the sides")
         
-        return StringLiteral(tokens[0])
+        return StringLiteral(tokens[0][1:(len(tokens)-2)])
 
 class Object(Expression):
     def __init__(self, targetObject: object):
@@ -185,7 +185,7 @@ class Call(Expression):
     @staticmethod
     def parse(tokens: list[str]) -> Call:
         """Factory method for creating call expressions from tokens"""
-        if len(tokens) < 6: # check for correct number of tokens
+        if len(tokens) < 5: # check for correct number of tokens
             raise GroveParseError(f"Wrong number of tokens ({len(tokens)}) for Call")
         if tokens[0] != "call": # make sure we start with call keyword
             raise GroveParseError(f"Expected 'call' but found {tokens[0]}")
@@ -201,7 +201,8 @@ class Call(Expression):
             raise GroveParseError(f"Attribute '{tokens[3]}' is not callable for objects of type {type(context[tokens[2]])}")
         ref = tokens[2]
         method = tokens[3]
-        args = (arg for arg in tokens[4:-2])
+        args = [arg for arg in tokens[4:-1]]
+        print(args)################################################
         return Call(ref, method, *args)
         
 class Addition(Expression):
@@ -209,8 +210,9 @@ class Addition(Expression):
         self.first = first
         self.second = second
     def eval(self) -> int: # Add the integer values together
-        self.first.eval() + self.second.eval()
+        return self.first.eval() + self.second.eval()
     def __eq__(self, other) -> bool:
+        print("IN ADD")
         return (isinstance(other, Addition) and
                 self.first == other.first and self.second == other.second)
     @staticmethod

@@ -1,38 +1,18 @@
-Welcome to the Grove Interpreter!
-Enter your commands or 'exit' or 'quit' to exit
-NOT ASSIGNMENT
-NOT TERMINATE
-NOT IMPORT
-NOT STATEMENT
-IN EXPRESSION
-<class 'grove_lang.Number'>
-<class 'grove_lang.StringLiteral'>
-<class 'grove_lang.Object'>
-<class 'grove_lang.Call'>
-<class 'grove_lang.Addition'>
-<class 'grove_lang.Name'>
-<class 'grove_lang.Import'>
-<class 'grove_lang.Terminate'>
-NOT EXPRESSION
 Error Parsing import calendar
 Unrecognized Command: import calendar
-IN EXPRESSION
-<class 'grove_lang.Number'>
-<class 'grove_lang.StringLiteral'>
-<class 'grove_lang.Object'>
 Traceback (most recent call last):
-  File "grove.py", line 25, in <module>
+  File "grove.py", line 23, in <module>
     if __name__ == "__main__": main()
-  File "grove.py", line 15, in main
+  File "grove.py", line 14, in main
     cmd = Command.parse(s).eval()
   File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 32, in parse
     return Statement.parse(tokens)
-  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 94, in parse
+  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 90, in parse
     return Assignment.parse(tokens)
-  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 305, in parse
+  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 299, in parse
     value: Expression = Expression.parse(tokens[3:])    
-  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 60, in parse
+  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 56, in parse
     return subclass.parse(tokens)
-  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 171, in parse
+  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 164, in parse
     if type(getattr(sys.modules[__name__], tokens[1])) == object:
 AttributeError: module 'grove_lang' has no attribute 'calendar.Calendar'

@@ -5,11 +5,10 @@ import sys
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 def main():
-    print("Welcome to the Grove Interpreter!")
-    print("Enter your commands or 'exit' or 'quit' to exit")
     # loop until the command :done is found
     while True:
-        s: str = input('Grove>> ')
+        s: str = input('')
+        # s: str = input('Grove>>')
         if (s.strip() == 'exit') or (s.strip() == 'quit'): break
         try:
             cmd = Command.parse(s).eval()
@@ -20,7 +19,6 @@ def main():
         except GroveEvalError as e:
             print(f"error Evaluating {s}")
             print(e)
-    print("Goodbye and thank you for using Grove!")
 
 if __name__ == "__main__": main()
     
