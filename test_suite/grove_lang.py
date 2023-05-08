@@ -15,7 +15,7 @@ class GroveError(Exception): pass
 class GroveParseError(GroveError): pass
 class GroveEvalError(GroveError): pass
 
-context: dict[str,object] = {}
+context: dict[str,object] = {} #Make this globals()
 
 # Command Base Class (superclass of expressions and statements)
 class Command(object):
@@ -90,7 +90,6 @@ class Statement(Command):
             return Assignment.parse(tokens)
         except GroveParseError as e:
             if verbose: print(e)
-            
         try:
             # try to parse as terminate
             return Terminate.parse(tokens)
@@ -186,7 +185,7 @@ class Call(Expression):
         if not callable(getattr(self.ref.eval(), self.method)):
             raise GroveEvalError(f"{self.method} not callable on {self.ref.name}")
         try:
-            getattr(self.ref.eval(), self.method)(*self.args)
+            return getattr(self.ref.eval(), self.method)(*[arg.eval() for arg in self.args])
         except:
             raise GroveParseError(f"incorrect number of parameters for {self.method} ({len(self.args)} given)")
         
@@ -204,12 +203,17 @@ class Call(Expression):
             raise GroveParseError(f"Expected ')' but found {tokens[-1]}")
         ref: Name = Name.parse(tokens[2])
         method: str = tokens[3]
-        paramTokens = tokens[4:-2]
+        paramTokens = tokens[4:-1]
         args: list[Expression] = []
-        while paramTokens:
-            args.append(Expression.parse(paramTokens[0:Expression.match_parens(paramTokens)]))
-            paramTokens = paramTokens[Expression.match_parens(paramTokens):]
-        # TODO parse list of arg expressions
+        #while paramTokens:
+        for i in range(len(paramTokens) + 1):
+            try:
+                args.append(Expression.parse(paramTokens[0:i]))
+                paramTokens = paramTokens[i:]
+                print(paramTokens, args[0].eval())
+            except:
+                pass
+        print(args)
         return Call(ref, method, args)
         
 class Addition(Expression):
@@ -219,7 +223,6 @@ class Addition(Expression):
     def eval(self) -> int: # Add the integer values together
         return self.first.eval() + self.second.eval()
     def __eq__(self, other) -> bool:
-        print("IN ADD")
         return (isinstance(other, Addition) and
                 self.first == other.first and self.second == other.second)
     @staticmethod
@@ -269,9 +272,9 @@ class Name(Expression):
         if not tokens[0][0].isalpha():
             raise GroveParseError("Name must start with alpha")
         if not tokens[0].replace("_", "").isalnum():
-            print(tokens[0].replace("_", ""))
-            print("HERE")
             raise GroveParseError("Names can contain letters")
+        if tokens[0] == "call":
+            raise GroveParseError(f"call is a protected word and not a valid name for your variable")
         return Name(tokens[0])
 
 class Assignment(Statement):
@@ -296,7 +299,6 @@ class Assignment(Statement):
         try:
             name: Name = Name.parse([tokens[1]])
         except GroveParseError as e:
-            print("NO NAME")
             raise GroveParseError("No name found for Assignment statement")
         # 3 Make sure the next token is an '='
         if tokens[2] != '=':
