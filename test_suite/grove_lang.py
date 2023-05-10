@@ -18,7 +18,8 @@ class GroveEvalError(GroveError): pass
 # ADDED
 class GroveException(Exception): pass
 
-context: dict[str,object] = {} #Make this globals()
+# context: dict[str,object] = {} #Make this globals()
+globals()
 
 # Command Base Class (superclass of expressions and statements)
 class Command(object):
@@ -266,8 +267,8 @@ class Name(Expression):
     def __init__(self, name: str):
         self.name = name # Sets the name value
     def eval(self) -> int:
-        if self.name in context: # If there is a variable under that name return it
-            return context[self.name] 
+        if self.name in globals(): # If there is a variable under that name return it
+            return globals()[self.name] 
         else: # If there is no variable under that name then error
             raise GroveEvalError(f"{self.name} is undefined")
     def __eq__(self, other: Any) -> bool: # Reference Equality
@@ -289,8 +290,8 @@ class Assignment(Statement):
     def __init__(self, name: Name, value: Expression): # Assignment command has access to either side of the =
         self.name = name
         self.value = value
-    def eval(self) -> None: # Assignment the expression in context dic to the right name
-        context[self.name.name] = self.value.eval()
+    def eval(self) -> None: # Assignment the expression in globals dic to the right name
+        globals()[self.name.name] = self.value.eval()
     def __eq__(self, other: Any): # Assignment statements being equal; same parse tree
         return (isinstance(other, Assignment) and 
                 self.name == other.name and self.value == other.value)

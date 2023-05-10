@@ -1,3 +1,10 @@
+# Question: Is your Grove interpreter using a static or dynamic type system? 
+# Briefly explain what aspects of the interpreter make it so.
+# 
+# Dynamic?
+#
+#
+
 from grove_lang import *
 import builtins
 import os

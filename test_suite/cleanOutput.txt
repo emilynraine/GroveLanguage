@@ -1,18 +1,17 @@
-Error Parsing import calendar
-Unrecognized Command: import calendar
-Traceback (most recent call last):
-  File "grove.py", line 23, in <module>
-    if __name__ == "__main__": main()
-  File "grove.py", line 14, in main
-    cmd = Command.parse(s).eval()
-  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 32, in parse
-    return Statement.parse(tokens)
-  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 90, in parse
-    return Assignment.parse(tokens)
-  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 309, in parse
-    value: Expression = Expression.parse(tokens[3:])    
-  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 56, in parse
-    return subclass.parse(tokens)
-  File "/mnt/c/Users/RAINEEN20/OneDrive - Grove City College/Documents/College/Junior Year/Spring/COMP 443/Project 4/GroveLanguage/test_suite/grove_lang.py", line 163, in parse
-    if type(getattr(sys.modules[__name__], tokens[1])) == object:
-AttributeError: module 'grove_lang' has no attribute 'calendar.Calendar'
+['2014', '2']
+error Evaluating set feb = call ( c monthdayscalendar 2014 2 )
+monthdayscalendar not defined for c
+['1']
+error Evaluating set weekTwo = call ( feb __getitem__ 1 )
+feb not defined in scope.
+['6']
+error Evaluating set nine = call ( weekTwo __getitem__ 6 )
+weekTwo not defined in scope.
+error Evaluating nine
+nine is undefined
+['2014', '3']
+error Evaluating set march = call ( txt_c formatmonth 2014 3 )
+formatmonth not defined for txt_c
+[]
+error Evaluating call ( march __len__ )
+march not defined in scope.
