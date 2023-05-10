@@ -201,7 +201,7 @@ class Call(Expression):
             raise GroveParseError(f"Expected '(' but found {tokens[1]}")
         if tokens[-1] != ")":
             raise GroveParseError(f"Expected ')' but found {tokens[-1]}")
-        ref: Name = Name.parse(tokens[2])
+        ref: Name = Name.parse(tokens[2:3])
         method: str = tokens[3]
         paramTokens = tokens[4:-1]
         args: list[Expression] = []
@@ -209,11 +209,9 @@ class Call(Expression):
         for i in range(len(paramTokens) + 1):
             try:
                 args.append(Expression.parse(paramTokens[0:i]))
-                paramTokens = paramTokens[i:]
-                print(paramTokens, args[0].eval())
+                paramTokens = paramTokens[i:] # may cause problems for i if there is multiple occurances
             except:
                 pass
-        print(args)
         return Call(ref, method, args)
         
 class Addition(Expression):
