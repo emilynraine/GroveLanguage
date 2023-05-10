@@ -15,9 +15,6 @@ class GroveError(Exception): pass
 class GroveParseError(GroveError): pass
 class GroveEvalError(GroveError): pass
 
-# ADDED
-class GroveException(Exception): pass
-
 # context: dict[str,object] = {} #Make this globals()
 globals()
 
