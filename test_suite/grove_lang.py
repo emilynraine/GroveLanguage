@@ -169,8 +169,12 @@ class Object(Expression):
             if len(pieces) == 1:
                 return Object(globals()[pieces[0]])
             else:
-                if pieces[1] in globals()[pieces[0]]:
-                    return Object(globals()[pieces[0]][pieces[1]]())
+                if type(globals()[pieces[0]]) == dict:
+                    if pieces[1] in globals()[pieces[0]]:
+                        return Object(globals()[pieces[0]][pieces[1]]()) # The orgional way that worked for test 5
+                else:
+                    index = dir(globals()[pieces[0]]).index(pieces[1]) # attempting to handle the import
+                    return Object(dir(globals()[pieces[0]])[index])
                 
         raise GroveParseError(f"Couldn't find the object '{s}' in modules")
     
@@ -209,6 +213,7 @@ class Call(Expression):
         ref: Name = Name.parse(tokens[2:3])
         method: str = tokens[3]
         paramTokens = tokens[4:-1]
+        print(paramTokens)
         args: list[Expression] = []
         #while paramTokens:
         for i in range(len(paramTokens) + 1):
@@ -317,14 +322,15 @@ class Assignment(Statement):
 
 class Import(Expression):
     # Implement node for "import" statements
-    def __init__(self, mod: Expression):
+    def __init__(self, mod):
         self.mod = mod
     def eval(self):
         #theoretically this should be adding the module to the globals dictionary
-        self.mod.__name__ = importlib.import_module(self.mod)
+        globals()[self.mod] = importlib.import_module(self.mod)
+        # self.mod.__name__ = importlib.import_module(self.mod)
     @staticmethod 
     def parse(tokens: list[str]):
-        if len(tokens) == 2:
+        if len(tokens) != 2:
             raise GroveParseError("Statement is wrong length for Import")
         #check if first word is import
         if tokens[0] != "import":
@@ -333,8 +339,8 @@ class Import(Expression):
         #     mod:Expression = tokens[1]
         # except:
         #     raise GroveParseError("No value found for module in import statement")
-         
-        return Import(importlib.import_module(tokens[1]))
+        
+        return Import(tokens[1])
 
 
 class Terminate(Expression):
