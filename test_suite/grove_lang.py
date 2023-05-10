@@ -15,6 +15,9 @@ class GroveError(Exception): pass
 class GroveParseError(GroveError): pass
 class GroveEvalError(GroveError): pass
 
+# ADDED
+class GroveException(Exception): pass
+
 context: dict[str,object] = {} #Make this globals()
 
 # Command Base Class (superclass of expressions and statements)
@@ -159,14 +162,16 @@ class Object(Expression):
             raise GroveParseError(f"Wrong amount of tokens for parsing object: '{s}'")
         if tokens[0] != "new":
             raise GroveParseError(f"Did not find 'new' instead found {tokens[0]}")
-        # for string in globals(): #https://stackoverflow.com/questions/1176136/convert-string-to-python-class-object
-        if type(getattr(sys.modules[__name__], tokens[1])) == object:
-            return Object(getattr(sys.modules[__name__], string))
-            # if is an object that can be called, then create object
-                # Object(Object())
-            # if callable(getattr(element, function)
-        # builtins.__dict__
-        # gloabls()
+        
+        # Look for burried Object "aka. something seperated by a ."
+        pieces = tokens[1].split(".")
+        if pieces[0] in globals():
+            if len(pieces) == 1:
+                return Object(globals()[pieces[0]])
+            else:
+                if pieces[1] in globals()[pieces[0]]:
+                    return Object(globals()[pieces[0]][pieces[1]]())
+                
         raise GroveParseError(f"Couldn't find the object '{s}' in modules")
     
 class Call(Expression):
@@ -320,15 +325,16 @@ class Import(Expression):
     @staticmethod 
     def parse(tokens: list[str]):
         if len(tokens) == 2:
-            raise GroveParseError("Statement is too long for Import")
+            raise GroveParseError("Statement is wrong length for Import")
         #check if first word is import
         if tokens[0] != "import":
             raise GroveParseError("First token did not equal 'import'")
-        try:
-            mod:Expression = tokens[1]
-        except:
-            raise GroveParseError("No value found for module in import statement")
-        return Import(mod)
+        # try:
+        #     mod:Expression = tokens[1]
+        # except:
+        #     raise GroveParseError("No value found for module in import statement")
+         
+        return Import(importlib.import_module(tokens[1]))
 
 
 class Terminate(Expression):
